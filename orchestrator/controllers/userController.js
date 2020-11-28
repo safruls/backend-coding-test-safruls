@@ -1,7 +1,7 @@
 const axios = require('axios')
 const Redis = require('ioredis')
 const redis = new Redis ()
-const url = 'http://localhost:3000/users'
+const url = 'http://localhost:3000/'
 
 class UserController {
   static async fetchUsers (req, res, next) {
@@ -63,6 +63,44 @@ class UserController {
         const result = resp.data
         await redis.del("users")
         res.status(200).json(result)
+    })
+    .catch(err => res.status(500).json({message: err.message}))
+  }
+
+  static async fetchUserByAccountNumber (req, res, next) {
+    const { accountNumber } = req.params
+    const cachedUsers = await redis.get("users")
+    let listOfUsers = JSON.parse(cachedUsers)
+    
+    if(cachedUsers){
+      const selectedUsers = listOfUsers.filter(user => user.accountNumber === +accountNumber) 
+      return res.status(200).json(selectedUsers[0]) 
+    }
+    return axios.get(url + `/accountNumber/${accountNumber}`)
+    .then(async resp => {
+      const user = resp.data
+      listOfusers.push(user)
+      await redis.set("users", JSON.stringify(listOfusers))
+      res.status(200).json(user)
+    })
+    .catch(err => res.status(500).json({message: err.message}))
+  }
+
+  static async fetchUserByIdentityNumber (req, res, next) {
+    const { identityNumber } = req.params
+    const cachedUsers = await redis.get("users")
+    let listOfUsers = JSON.parse(cachedUsers)
+    
+    if(cachedUsers){
+      const selectedUsers = listOfUsers.filter(user => user.identityNumber === identityNumber) 
+      return res.status(200).json(selectedUsers[0])
+    }
+    return axios.get(url + `/identity/${identityNumber}`)
+    .then(async resp => {
+      const user = resp.data
+      listOfusers.push(user)
+      await redis.set("users", JSON.stringify(listOfusers))
+      res.status(200).json(user)
     })
     .catch(err => res.status(500).json({message: err.message}))
   }

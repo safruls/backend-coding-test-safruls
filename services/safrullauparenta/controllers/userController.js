@@ -42,6 +42,7 @@ class Controller {
       res.status(200).json({message: `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`})
     }
     catch (err) {
+      console.log(err)
       res.status(500).json({message: err.message})
     }
   }
@@ -60,6 +61,32 @@ class Controller {
     catch (err) {
       res.status(500).json({message: err.message})
     }
+  }
+
+  static async fetchUserByAccountNumber (req, res, next) {
+    const { accountNumber } = req.params
+    try{
+      const user = await User.fetchUserByAccountNumber(+accountNumber)
+      res.status(200).json(user)
+    }
+    catch (err) {
+      res.status(500).json({message: err.message})
+    }
+  }
+
+  static async fetchUserByIdentityNumber (req, res, next) {
+    const { identityNumber } = req.params
+    try{
+      const user = await User.fetchUserByIdentityNumber(identityNumber)
+      res.status(200).json(user)
+    }
+    catch (err) {
+      res.status(500).json({message: err.message})
+    }
+  }
+
+  static getToken (req, res, next) {
+    
   }
 }
 

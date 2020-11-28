@@ -29,6 +29,14 @@ class User {
     return usersCollection.deleteOne({_id: ObjectID(id)})
   }
 
+  static fetchUserByAccountNumber (accountNumber) {
+    return usersCollection.findOne({accountNumber: accountNumber})
+  }
+
+  static fetchUserByIdentityNumber (identityNumber) {
+    return usersCollection.findOne({identityNumber: identityNumber})
+  }
+
 }
 
 module.exports = { User }
