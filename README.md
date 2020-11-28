@@ -11,7 +11,7 @@ For the test, I decided to create a microservice equipped with an orchestrator.
 - PUT /users/:id
 - DELETE /users/:id
 
-## RESTful Endpoints at services/safrullauparenta
+## RESTful Endpoints at safrullauparenta (miroservice's name)
 - GET /token
 - GET /
 - GET /account/:accountNumber
