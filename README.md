@@ -29,6 +29,10 @@ The schema constraints that I was using can be found at /config/config.js. I def
 As for the indexes, I added two indexes, one that accounts for accountNumber and the other accounts for identityNumber. I put the method in creating those indexes at /models/user.js
 
 ## Deploy
-I deployed the microservices and the orchestrator on AWS EC2.
-Link: 
+I deployed the microservice and the orchestrator on AWS EC2.
+Link:
+- Orchestrator: http://18.139.209.185:3001/ 
+
+## Suggestion
+I suggest you to use Postman, Insomnia, or any apps with similar functionalities. When you go to the orchestrator link above, go to /token first to get an access token otherwise you will not be authorized to access any RESTful endpoints on orchestrator.
 
