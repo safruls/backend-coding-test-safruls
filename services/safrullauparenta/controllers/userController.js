@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken')
 const { User } = require('../models/user.js')
 
 class Controller {
@@ -86,7 +87,8 @@ class Controller {
   }
 
   static getToken (req, res, next) {
-    
+    const access_token = jwt.sign({status: "Received an access token"}, 'secret123')
+    res.status(200).json({access_token})
   }
 }
 

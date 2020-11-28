@@ -5,12 +5,19 @@ const url = 'http://localhost:3000/'
 
 class UserController {
   static async fetchUsers (req, res, next) {
+    
     const cachedUsers = await redis.get("users")
     if(cachedUsers){
       res.status(200).json(JSON.parse(cachedUsers))
     }
     else{
-      axios.get(url)
+      axios({
+        url: url,
+        method: "GET",
+        headers: {
+          access_token: req.headers.access_token
+        }
+      })
       .then(async resp => {
           const users = resp.data
           await redis.set("users", JSON.stringify(users))
@@ -22,18 +29,28 @@ class UserController {
 
   static async addUser (req, res, next) {
     const { userName, accountNumber, emailAddress, identityNumber } = req.body
-    axios.post(url, {
-      userName,
-      accountNumber: +accountNumber,
-      emailAddress,
-      identityNumber
+    axios({
+      url: url, 
+      method: "post",
+      data: {
+        userName,
+        accountNumber: +accountNumber,
+        emailAddress,
+        identityNumber
+      },
+      headers: {
+        access_token: req.headers.access_token
+      }
     })
     .then(async resp => {
       const user = resp.data
       await redis.del("users")
       res.status(201).json(user)
     })
-    .catch(err => res.status(500).json({message: err.message}))
+    .catch(err => {
+      // console.log(err);
+      res.status(500).json({message: err.message})
+    })
   }
 
   static async editUser (req, res, next) {
@@ -44,7 +61,14 @@ class UserController {
       "emailAddress": req.body.emailAddress,
       "identityNumber": req.body.identityNumber
     }
-    axios.put(url + id, updatedDoc)
+    axios({
+      method: "PUT",
+      url: url + id,
+      data: updatedDoc,
+      headers: {
+        access_token: req.headers.access_token
+      }
+    })
     .then(async resp => {
       const result = resp.data
       await redis.del("users")
@@ -57,7 +81,10 @@ class UserController {
     const { id } = req.params
     axios({
       method: 'delete',
-      url: url + id
+      url: url + id,
+      headers: {
+        access_token: req.headers.access_token
+      }
     })
     .then(async resp => {
         const result = resp.data
@@ -76,7 +103,13 @@ class UserController {
       const selectedUsers = listOfUsers.filter(user => user.accountNumber === +accountNumber) 
       return res.status(200).json(selectedUsers[0]) 
     }
-    return axios.get(url + `/accountNumber/${accountNumber}`)
+    return axios({
+      url: url + `/accountNumber/${accountNumber}`,
+      method: "GET",
+      headers: {
+        access_token: req.headers.access_token
+      }
+    })
     .then(async resp => {
       const user = resp.data
       listOfusers.push(user)
@@ -95,12 +128,26 @@ class UserController {
       const selectedUsers = listOfUsers.filter(user => user.identityNumber === identityNumber) 
       return res.status(200).json(selectedUsers[0])
     }
-    return axios.get(url + `/identity/${identityNumber}`)
+    return axios({
+      url: url + `/identity/${identityNumber}`,
+      method: "GET",
+      headers: {
+        access_token: req.headers.access_token
+      }
+    })
     .then(async resp => {
       const user = resp.data
       listOfusers.push(user)
       await redis.set("users", JSON.stringify(listOfusers))
       res.status(200).json(user)
+    })
+    .catch(err => res.status(500).json({message: err.message}))
+  }
+
+  static getToken (req, res, next) {
+    axios.get(url + `token`)
+    .then(resp => {
+      res.status(200).json(resp.data)
     })
     .catch(err => res.status(500).json({message: err.message}))
   }
